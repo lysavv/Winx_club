@@ -40,6 +40,99 @@
                         <p style="font-size: 1.2rem; margin-bottom: 0.5rem;"><strong>Setiap Hari Rabu</strong>, setelah KBM</p>
                         <p style="font-size: 1.1rem; color: #555;">Lokasi: Panggung atau ruang kelas (akan diinformasikan)</p>
                     </div>
+
+                    <div class="pengurus-bdc" style="
+                       background: linear-gradient(135deg, var(--primary-color), #ffffff20);
+                       padding: 25px;
+                       border-radius: 16px;
+                       margin: 2.5rem auto;
+                       max-width: 700px;
+                       text-align: center;
+                       box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+                       backdrop-filter: blur(6px);
+                       ">
+                     <h3 style="margin-top: 0; font-size: 1.5rem; color: var(--primary-color);">
+                         Pengurus Beyond Dance Crew
+                     </h3>
+
+                    <div style="
+                      background-color: white;
+                      border-radius: 12px;
+                      padding: 20px;
+                      margin-top: 15px;
+                      display: grid;
+                      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+                      gap: 15px;
+                      ">
+
+                    <div style="background: #f9f9f9; padding: 15px; border-radius: 10px;">
+                      <strong>Ketua</strong>
+                      <p>Nagiska shesilya</p>
+                      <span style="font-size: 0.9rem; color: #777;">XI AK 1</span>
+                    </div>
+
+                   <div style="background: #f9f9f9; padding: 15px; border-radius: 10px;">
+                      <strong>Wakil Ketua</strong>
+                      <p>Famya Rahma Permadi</p>
+                      <span style="font-size: 0.9rem; color: #777;">XI DPB 1</span>
+                   </div>
+
+                   <div style="background: #f9f9f9; padding: 15px; border-radius: 10px;">
+                      <strong>Sekretaris 1</strong>
+                      <p> Amaina Maulidania Andalasetya</p>
+                      <span style="font-size: 0.9rem; color: #777;">XI MP 2</span>
+                   </div>
+
+                   <div style="background: #f9f9f9; padding: 15px; border-radius: 10px;">
+                      <strong>Sekretaris 2</strong>
+                      <p> Triani Yuli Pratiwi</p>
+                      <span style="font-size: 0.9rem; color: #777;">XI LPB</span>
+                   </div>
+
+                   <div style="background: #f9f9f9; padding: 15px; border-radius: 10px;">
+                       <strong>Bendahara 1</strong>
+                       <p>Anis Dwi Aristawati</p>
+                       <span style="font-size: 0.9rem; color: #777;">XI TM 1</span>
+                   </div>
+
+                   <div style="background: #f9f9f9; padding: 15px; border-radius: 10px;">
+                       <strong>Bendahara 2</strong>
+                       <p>Venida zaitussiva</p>
+                       <span style="font-size: 0.9rem; color: #777;">XI AP 1</span>
+                   </div>
+
+                   <div style="background: #f9f9f9; padding: 15px; border-radius: 10px;">
+                       <strong>PDD</strong>
+                       <p>Saifany nabila rahma</p>
+                       <span style="font-size: 0.9rem; color: #777;">XI AK 1</span>
+                   </div>
+
+                   <div style="background: #f9f9f9; padding: 15px; border-radius: 10px;">
+                       <strong>PDD</strong>
+                       <p>Defita nurul aulia</p>
+                       <span style="font-size: 0.9rem; color: #777;">XI AK 1</span>
+                   </div>
+
+                   <div style="background: #f9f9f9; padding: 15px; border-radius: 10px;">
+                      <strong>Seksi Humas</strong>
+                      <p>Aliefia Yuliana Saputri</p>
+                      <span style="font-size: 0.9rem; color: #777;">XI RPL</span>
+                   </div>
+
+                   <div style="background: #f9f9f9; padding: 15px; border-radius: 10px;">
+                      <strong>Seksi Humas</strong>
+                      <p>Belvania Callysta jati</p>
+                      <span style="font-size: 0.9rem; color: #777;">XI BD</span>
+                   </div>
+                   
+                   <div style="background: #f9f9f9; padding: 15px; border-radius: 10px;">
+                      <strong>Seksi Perlengkapan</strong>
+                      <p>Aprilia Dewi Ramahati</p>
+                      <span style="font-size: 0.9rem; color: #777;">XI TKJ 1</span>
+                   </div>
+
+                   </div>
+                   </div>
                 </div>
             </div>
         </section>
