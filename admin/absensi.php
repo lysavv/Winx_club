@@ -1,90 +1,188 @@
 <?php
 session_start();
-if (!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true) {
-    header("location: /login.php");
-    exit;
-}
 require_once "../config.php";
 
-// Tentukan tanggal. Default ke hari ini jika tidak ada tanggal yang dipilih.
-$tanggal_pilihan = isset($_GET['tanggal']) ? $_GET['tanggal'] : date('Y-m-d');
+/* =====================================================
+   AMBIL DATA SISWA DARI TABEL USERS
+===================================================== */
+$result = $mysqli->query("SELECT id, nama_lengkap, nis, kelas FROM users");
+$anggota = $result->fetch_all(MYSQLI_ASSOC);
 
-// Ambil daftar semua anggota
-$sql_users = "SELECT id, nama_lengkap, nis, kelas FROM users WHERE role = 'anggota' ORDER BY nama_lengkap ASC";
-$result_users = $mysqli->query($sql_users);
-$anggota = $result_users->fetch_all(MYSQLI_ASSOC);
+/* =====================================================
+   PROSES SIMPAN ABSENSI
+===================================================== */
+$notifikasi = "";
 
-// Ambil data absensi yang sudah ada untuk tanggal yang dipilih
-$sql_absensi = "SELECT user_id, status FROM absensi WHERE tanggal = ?";
-$absensi_hari_ini = [];
-if($stmt_absensi = $mysqli->prepare($sql_absensi)){
-    $stmt_absensi->bind_param("s", $tanggal_pilihan);
-    $stmt_absensi->execute();
-    $result_absensi = $stmt_absensi->get_result();
-    while($row = $result_absensi->fetch_assoc()){
-        $absensi_hari_ini[$row['user_id']] = $row['status'];
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
+    if (!isset($_POST['tanggal']) || !isset($_POST['status'])) {
+        header("Location: absensi.php");
+        exit;
     }
-    $stmt_absensi->close();
+
+    $tanggal = $_POST['tanggal'];
+    $status_data = $_POST['status'];
+
+    foreach ($status_data as $user_id => $status) {
+
+        $sql = "INSERT INTO absensi (user_id, tanggal, status)
+                VALUES (?, ?, ?)
+                ON DUPLICATE KEY UPDATE status = VALUES(status)";
+
+        $stmt = $mysqli->prepare($sql);
+        $stmt->bind_param("iss", $user_id, $tanggal, $status);
+        $stmt->execute();
+        $stmt->close();
+    }
+
+    $notifikasi = "Absensi berhasil disimpan untuk tanggal $tanggal 🎉";
 }
 
+/* =====================================================
+   TANGGAL DIPILIH
+===================================================== */
+$tanggal_pilihan = $_GET['tanggal'] ?? date('Y-m-d');
+
+/* =====================================================
+   AMBIL ABSENSI SESUAI TANGGAL
+===================================================== */
+$absensi_hari_ini = [];
+
+$stmt = $mysqli->prepare("SELECT user_id, status FROM absensi WHERE tanggal = ?");
+$stmt->bind_param("s", $tanggal_pilihan);
+$stmt->execute();
+$res = $stmt->get_result();
+
+while ($row = $res->fetch_assoc()) {
+    $absensi_hari_ini[$row['user_id']] = $row['status'];
+}
+$stmt->close();
 ?>
+
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <title>Manajemen Absensi - BDC</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="../style.css">
-    <link rel="stylesheet" href="admin_style.css">
+<meta charset="UTF-8">
+<title>Manajemen Absensi</title>
+
+<style>
+body {
+    margin:0;
+    font-family: Arial, sans-serif;
+    background: linear-gradient(135deg, #c8b6ff, #f8cdda);
+    padding:40px;
+}
+.card {
+    background:white;
+    padding:30px;
+    border-radius:20px;
+    box-shadow:0 20px 50px rgba(0,0,0,0.1);
+}
+h2 {
+    text-align:center;
+    color:#6a4c93;
+}
+input[type="date"] {
+    padding:8px;
+    border-radius:10px;
+    border:1px solid #ccc;
+}
+table {
+    width:100%;
+    border-collapse:collapse;
+    margin-top:20px;
+}
+th {
+    background:#b388eb;
+    color:white;
+    padding:12px;
+}
+td {
+    padding:10px;
+    text-align:center;
+    border-bottom:1px solid #eee;
+}
+tr:hover {
+    background:#f3e8ff;
+}
+input[type="radio"] {
+    transform:scale(1.2);
+    cursor:pointer;
+}
+button {
+    margin-top:20px;
+    padding:12px 30px;
+    border:none;
+    border-radius:25px;
+    background:#b388eb;
+    color:white;
+    font-weight:bold;
+    cursor:pointer;
+}
+button:hover {
+    background:#9c6ade;
+}
+.notif {
+    margin-top:15px;
+    padding:10px;
+    background:#d4edda;
+    color:#155724;
+    border-radius:10px;
+    text-align:center;
+}
+</style>
 </head>
 <body>
-<div class="dashboard-wrapper">
-    <?php include 'sidebar.php'; ?>
-    <main class="main-content">
-        <div class="content-area">
-            <h2>Ambil Absensi</h2>
-            <form method="GET" class="simple-form" style="margin-bottom: 2rem;">
-                <div class="form-group">
-                    <label for="tanggal">Pilih Tanggal Pertemuan</label>
-                    <input type="date" id="tanggal" name="tanggal" value="<?php echo $tanggal_pilihan; ?>" onchange="this.form.submit()">
-                </div>
-            </form>
 
-            <form action="proses_absensi.php" method="POST">
-                <input type="hidden" name="tanggal" value="<?php echo $tanggal_pilihan; ?>">
-                <div class="table-wrapper">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Nama</th>
-                                <th>NIS</th>
-                                <th>Kelas</th>
-                                <th>Hadir</th>
-                                <th>Izin</th>
-                                <th>Sakit</th>
-                                <th>Alpha</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php foreach ($anggota as $member): ?>
-                                <?php $status_sekarang = $absensi_hari_ini[$member['id']] ?? 'alpha'; // Default ke alpha ?>
-                                <tr>
-                                    <td><?php echo htmlspecialchars($member['nama_lengkap']); ?></td>
-                                    <td><?php echo htmlspecialchars($member['nis']); ?></td>
-                                    <td><?php echo htmlspecialchars($member['kelas']); ?></td>
-                                    <td><input type="radio" name="status[<?php echo $member['id']; ?>]" value="hadir" <?php echo ($status_sekarang == 'hadir') ? 'checked' : ''; ?>></td>
-                                    <td><input type="radio" name="status[<?php echo $member['id']; ?>]" value="izin" <?php echo ($status_sekarang == 'izin') ? 'checked' : ''; ?>></td>
-                                    <td><input type="radio" name="status[<?php echo $member['id']; ?>]" value="sakit" <?php echo ($status_sekarang == 'sakit') ? 'checked' : ''; ?>></td>
-                                    <td><input type="radio" name="status[<?php echo $member['id']; ?>]" value="alpha" <?php echo ($status_sekarang == 'alpha') ? 'checked' : ''; ?>></td>
-                                </tr>
-                            <?php endforeach; ?>
-                        </tbody>
-                    </table>
-                </div>
-                <button type="submit" class="btn btn-primary" style="margin-top: 1.5rem;">Simpan Absensi</button>
-            </form>
-        </div>
-    </main>
+<div class="card">
+
+<h2>Manajemen Absensi</h2>
+
+<?php if($notifikasi != ""): ?>
+<div class="notif"><?= $notifikasi ?></div>
+<?php endif; ?>
+
+<!-- FORM PILIH TANGGAL -->
+<form method="GET">
+    <label>Pilih Tanggal:</label>
+    <input type="date" name="tanggal" value="<?= $tanggal_pilihan ?>" onchange="this.form.submit()">
+</form>
+
+<form method="POST">
+<input type="hidden" name="tanggal" value="<?= $tanggal_pilihan ?>">
+
+<table>
+<tr>
+    <th>Nama</th>
+    <th>NIS</th>
+    <th>Kelas</th>
+    <th>Hadir</th>
+    <th>Izin</th>
+    <th>Sakit</th>
+    <th>Alpha</th>
+</tr>
+
+<?php foreach ($anggota as $a): 
+$status = $absensi_hari_ini[$a['id']] ?? "alpha";
+?>
+<tr>
+<td><?= htmlspecialchars($a['nama_lengkap']) ?></td>
+<td><?= htmlspecialchars($a['nis']) ?></td>
+<td><?= htmlspecialchars($a['kelas']) ?></td>
+
+<td><input type="radio" name="status[<?= $a['id'] ?>]" value="hadir" <?= $status=="hadir"?"checked":"" ?>></td>
+<td><input type="radio" name="status[<?= $a['id'] ?>]" value="izin" <?= $status=="izin"?"checked":"" ?>></td>
+<td><input type="radio" name="status[<?= $a['id'] ?>]" value="sakit" <?= $status=="sakit"?"checked":"" ?>></td>
+<td><input type="radio" name="status[<?= $a['id'] ?>]" value="alpha" <?= $status=="alpha"?"checked":"" ?>></td>
+</tr>
+<?php endforeach; ?>
+
+</table>
+
+<button type="submit">Simpan Absensi</button>
+</form>
+
 </div>
+
 </body>
 </html>
